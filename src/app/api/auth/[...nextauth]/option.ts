@@ -14,7 +14,23 @@ export const authOptions: NextAuthOptions = {
                 password: {label: "Password", type: "password"}
             },
             async authorize(credentials: any): Promise<any>{
-
+                await dbConnect()
+                try {
+                    const user = await UserModel.findOne({
+                        $or: [
+                            {email: credentials.identifier},
+                            {username: credentials.identifier}
+                        ]
+                    })
+                    if(!user) {
+                        throw new Error('No user found with this email')
+                    }
+                    if(!user.isVerified) {
+                        throw new Error('Account is not verify. Please verify your account first.')
+                    }
+                } catch (err: any) {
+                    throw new Error(err)
+                }
             }
         })
     ]
