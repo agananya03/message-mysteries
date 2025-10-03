@@ -28,10 +28,34 @@ export const authOptions: NextAuthOptions = {
                     if(!user.isVerified) {
                         throw new Error('Account is not verify. Please verify your account first.')
                     }
+                    const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password)
+                    if(isPasswordCorrect) {
+                        return user
+                    } else {
+                        throw new Error('Incorrect Password')
+                    }
                 } catch (err: any) {
                     throw new Error(err)
                 }
             }
         })
-    ]
+    ],
+    callbacks: {
+        async jwt({token, user}) {
+            if(user) {
+                
+            }
+            return token
+        },
+        async session({session, token}) {
+            return session
+        }
+    },
+    pages: {
+        signIn: '/sign-in'
+    },
+    session: {
+        strategy: "jwt"
+    },
+    secret: process.env.NEXTAUTH_SECRET
 }
